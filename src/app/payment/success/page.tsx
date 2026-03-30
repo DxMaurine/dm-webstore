@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Navigation } from '../../../components/Navigation';
 import { Footer } from '../../../components/Footer';
@@ -7,7 +7,7 @@ import { CheckCircle, ArrowRight, Clock, XCircle, AlertCircle } from 'lucide-rea
 import Link from 'next/link';
 import { useCart } from '../../../context/CartContext';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const { clearCart } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -55,7 +55,7 @@ export default function PaymentSuccessPage() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [searchParams, status]);
+  }, [searchParams, status, clearCart, router]);
 
   return (
     <div className="bg-white min-h-screen selection:bg-primary/20">
@@ -128,5 +128,17 @@ export default function PaymentSuccessPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center text-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

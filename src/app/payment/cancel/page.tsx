@@ -1,12 +1,12 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { XCircle, MessageCircle, ArrowLeft, RefreshCw, HelpCircle } from 'lucide-react';
 import { Navigation } from '../../../components/Navigation';
 import { Footer } from '../../../components/Footer';
 
-export default function CancelPage() {
+function CancelContent() {
   const searchParams = useSearchParams();
   const invoice = searchParams.get('invoice');
   const name = searchParams.get('name');
@@ -96,5 +96,17 @@ export default function CancelPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CancelPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <CancelContent />
+    </Suspense>
   );
 }
