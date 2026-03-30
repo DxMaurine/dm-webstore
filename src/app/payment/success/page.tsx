@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Navigation } from '../../../components/Navigation';
 import { Footer } from '../../../components/Footer';
@@ -14,6 +14,7 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<'success' | 'pending' | 'failed' | 'checking'>('checking');
   const [invoice, setInvoice] = useState<string | null>(null);
   const [hasNotified, setHasNotified] = useState(false);
+  const notifyLock = useRef(false); // Ref based lock for async flow
 
   // Extract encoded data from URL
   const encodedItems = searchParams.get('items');
@@ -24,6 +25,9 @@ function PaymentSuccessContent() {
     setInvoice(inv);
 
     const checkPaymentStatus = async () => {
+      // If we already finished or are already notifying, skip
+      if (status === 'success' && hasNotified) return;
+
       if (!inv) {
         setStatus('pending');
         return;
@@ -32,20 +36,20 @@ function PaymentSuccessContent() {
       try {
         const res = await fetch(`/api/check-status?invoice=${inv}`);
         const data = await res.json();
-        
         const finalStatus = data.status?.toUpperCase();
 
         if (['SUCCESS', 'PAID', 'SETTLEMENT', 'DONE'].includes(finalStatus)) {
           setStatus('success');
           clearCart();
           
-          // Trigger Success Notification only once
-          if (!hasNotified && encodedItems && encodedCustomer) {
+          // Trigger Success Notification ONLY ONCE with ref lock
+          if (!notifyLock.current && !hasNotified && encodedItems && encodedCustomer) {
+            notifyLock.current = true;
             try {
               const items = JSON.parse(Buffer.from(encodedItems, 'base64').toString());
               const customer = JSON.parse(Buffer.from(encodedCustomer, 'base64').toString());
               
-              await fetch('/api/notify-success', {
+              const notifyRes = await fetch('/api/notify-success', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -56,9 +60,15 @@ function PaymentSuccessContent() {
                   items: items
                 })
               });
-              setHasNotified(true);
+              
+              if (notifyRes.ok) {
+                setHasNotified(true);
+              } else {
+                notifyLock.current = false; // Allow retry if failed
+              }
             } catch (notifyErr) {
               console.error('Failed to send success notification', notifyErr);
+              notifyLock.current = false;
             }
           }
         } else if (['FAILED', 'CANCEL'].includes(finalStatus)) {
@@ -81,6 +91,11 @@ function PaymentSuccessContent() {
         checkPaymentStatus();
       }
     }, 10000);
+
+    // If status becomes success, clear interval immediately
+    if (status === 'success') {
+      clearInterval(interval);
+    }
 
     return () => clearInterval(interval);
   }, [searchParams, status, clearCart, router, hasNotified, encodedItems, encodedCustomer]);
@@ -150,12 +165,29 @@ function PaymentSuccessContent() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               {status === 'success' ? (
-                <Link 
-                  href={`/invoice/${invoice}?items=${encodedItems}&customer=${encodedCustomer}`} 
-                  className="btn-primary flex items-center justify-center gap-2 px-10"
-                >
-                  Lihat & Download Invoice <ArrowRight size={20} />
-                </Link>
+                (() => {
+                  let d = '';
+                  try {
+                    const items = JSON.parse(Buffer.from(encodedItems || '', 'base64').toString());
+                    const customer = JSON.parse(Buffer.from(encodedCustomer || '', 'base64').toString());
+                    d = Buffer.from(JSON.stringify({
+                      n: customer.n,
+                      w: customer.w,
+                      a: customer.a,
+                      t: items.reduce((acc: number, item: any) => acc + (item.p * item.q), 0),
+                      i: items
+                    })).toString('base64');
+                  } catch (e) {}
+                  
+                  return (
+                    <Link 
+                      href={`/invoice/${invoice}?d=${d}`} 
+                      className="btn-primary flex items-center justify-center gap-2 px-10"
+                    >
+                      Lihat & Download Invoice <ArrowRight size={20} />
+                    </Link>
+                  );
+                })()
               ) : status === 'pending' ? (
                 <>
                    <a href="https://wa.me/6285117042204" target="_blank" className="btn-primary py-4 px-10 flex items-center justify-center gap-2">

@@ -7,13 +7,21 @@ export async function POST(req: Request) {
 
     const itemsList = items.map((item: any) => `- ${item.n} (x${item.q})`).join('\n');
 
+    // Compress data for URL to avoid Telegram truncation
+    const compressedData = Buffer.from(JSON.stringify({
+      n: name,
+      w: whatsapp,
+      t: totalAmount,
+      i: items
+    })).toString('base64');
+
     const message = `<b>✅ PEMBAYARAN BERHASIL!</b>\n\n` +
                     `<b>👤 Pembeli:</b> ${name}\n` +
                     `<b>📱 WhatsApp:</b> ${whatsapp}\n` +
                     `<b>No. Invoice:</b> <code>${invoiceNumber}</code>\n` +
                     `<b>Total:</b> Rp ${totalAmount.toLocaleString('id-ID')}\n\n` +
                     `<b>📦 Barang:</b>\n${itemsList}\n\n` +
-                    `<a href="${process.env.NEXT_PUBLIC_BASE_URL}/invoice/${invoiceNumber}?name=${encodeURIComponent(name)}&total=${totalAmount}&items=${Buffer.from(JSON.stringify(items)).toString('base64')}">Lihat Digital Invoice</a>`;
+                    `<a href="${process.env.NEXT_PUBLIC_BASE_URL}/invoice/${invoiceNumber}?d=${compressedData}">Lihat Digital Invoice</a>`;
     
     await sendTelegramNotification(message);
 

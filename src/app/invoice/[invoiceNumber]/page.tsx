@@ -11,26 +11,30 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   
   const invoiceNumber = params.invoiceNumber;
-  const encodedItems = searchParams.get('items');
-  const encodedCustomer = searchParams.get('customer');
+  const dataParam = searchParams.get('d');
 
   const data = useMemo(() => {
     try {
-      if (!encodedItems || !encodedCustomer) return null;
+      if (!dataParam) return null;
       
-      const items = JSON.parse(Buffer.from(encodedItems, 'base64').toString());
-      const customer = JSON.parse(Buffer.from(encodedCustomer, 'base64').toString());
+      const decoded = JSON.parse(Buffer.from(dataParam, 'base64').toString());
       
+      const items = decoded.i || [];
       const subtotal = items.reduce((acc: number, item: any) => acc + (item.p * item.q), 0);
-      const tax = 0; // Assuming no tax or included
-      const total = subtotal + tax;
+      const tax = 0; 
+      const total = decoded.t || subtotal;
+      const customer = {
+        n: decoded.n,
+        w: decoded.w,
+        a: decoded.a || '(Alamat Pengiriman Sesuai Data Checkout)'
+      };
 
       return { items, customer, subtotal, tax, total };
     } catch (e) {
       console.error('Invoice data error', e);
       return null;
     }
-  }, [encodedItems, encodedCustomer]);
+  }, [dataParam]);
 
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current) return;
