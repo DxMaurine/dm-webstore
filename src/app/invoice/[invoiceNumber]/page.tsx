@@ -17,7 +17,10 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
     try {
       if (!dataParam) return null;
       
-      const decoded = JSON.parse(Buffer.from(dataParam, 'base64').toString());
+      // Menggunakan atob (browser standard) alih-alih Buffer (Node component)
+      // Ditambah decodeURIComponent(escape()) untuk mendukung karakter UTF-8 spesial
+      const decodedString = decodeURIComponent(escape(window.atob(dataParam)));
+      const decoded = JSON.parse(decodedString);
       
       const items = decoded.i || [];
       const subtotal = items.reduce((acc: number, item: any) => acc + (item.p * item.q), 0);
@@ -39,10 +42,12 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current) return;
     
+    // Memberi sedikit waktu agar browser siap rendering
     const canvas = await html2canvas(invoiceRef.current, {
-      scale: 2,
+      scale: 3, // Lebih tajam
       useCORS: true,
       logging: false,
+      backgroundColor: '#ffffff'
     });
     
     const imgData = canvas.toDataURL('image/png');
@@ -76,11 +81,11 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 lg:py-20 no-print">
+    <div className="min-h-screen bg-gray-100 py-12 lg:py-20">
       <div className="container mx-auto px-4 max-w-4xl">
         
-        {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+        {/* Actions Bar - JANGAN DI-PRINT */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-200 no-print">
           <Link href="/" className="flex items-center gap-2 text-muted hover:text-secondary font-bold text-sm transition-all group">
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Kembali ke DM POS
           </Link>
@@ -104,7 +109,7 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
         {/* Invoice Container for PDF/Print */}
         <div 
           ref={invoiceRef}
-          className="bg-white rounded-[2rem] shadow-2xl p-8 lg:p-16 border border-gray-100 print:shadow-none print:p-0 print:border-none"
+          className="bg-white rounded-[2rem] shadow-2xl p-8 lg:p-16 border border-gray-100 print:shadow-none print:p-0 print:border-none print:m-0"
         >
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
@@ -124,7 +129,7 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
             
             <div className="text-right space-y-1">
               <div className="text-primary font-black uppercase tracking-widest text-xs">Nomor Invoice</div>
-              <div className="text-2xl font-black text-secondary">#{invoiceNumber}</div>
+              <div className="text-2xl font-black text-secondary uppercase">#{invoiceNumber}</div>
               <div className="text-muted text-sm font-bold pt-2">{dateStr}</div>
               <div className="flex items-center justify-end gap-1 text-green-500 font-black text-[10px] uppercase tracking-widest pt-4">
                  <CheckCircle2 size={12} /> PAID / LUNAS
@@ -158,12 +163,12 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
               <thead>
                 <tr className="border-b-2 border-secondary/5">
                   <th className="py-4 font-black uppercase tracking-widest text-xs text-primary">Deskripsi Barang</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center">Harga</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center">Qty</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-right">Subtotal</th>
+                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center font-bold">Harga</th>
+                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center font-bold">Qty</th>
+                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-right font-bold">Subtotal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 border-b border-gray-100">
                 {data.items.map((item: any, idx: number) => (
                   <tr key={idx} className="group">
                     <td className="py-6">
@@ -198,7 +203,7 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
             </div>
           </div>
 
-          <div className="mt-20 pt-12 border-t border-gray-100 text-center">
+          <div className="mt-24 pt-12 border-t border-gray-100 text-center">
             <p className="text-muted font-bold italic mb-4">"Membantu transformasi digital bisnis Anda dengan data yang akurat."</p>
             <p className="text-[10px] text-secondary font-black uppercase tracking-[0.3em]">Terima kasih telah berbisnis bersama DM POS</p>
             <div className="mt-8 flex justify-center gap-4">
