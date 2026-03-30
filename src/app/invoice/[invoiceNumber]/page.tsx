@@ -121,7 +121,8 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
                 Diamond Media <span className="text-primary">Solution.</span>
               </h1>
               <div className="text-muted text-[11px] font-medium leading-relaxed">
-                KALIJATI, KABUPATEN SUBANG, JAWA BARAT<br />
+                Jl.Raya Penawangan-Sedadi Km 5, Area Persawahan Kluwan,<br />
+                Pengkol, Penawangan, Grobogan, Jawa Tengah 58161<br />
                 WhatsApp: 0851-1704-2204 | Email: support@dmpos.id
               </div>
             </div>
