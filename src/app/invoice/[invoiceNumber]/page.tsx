@@ -109,75 +109,74 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
         {/* Invoice Container for PDF/Print */}
         <div 
           ref={invoiceRef}
-          className="bg-white rounded-[2rem] shadow-2xl p-8 lg:p-16 border border-gray-100 print:shadow-none print:p-0 print:border-none print:m-0"
+          className="bg-white rounded-[1.5rem] shadow-2xl p-10 lg:p-12 border border-gray-100 print:shadow-none print:p-0 print:border-none print:m-0"
         >
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
-            <div className="space-y-4">
-              <div className="bg-secondary text-white px-6 py-2 rounded-full inline-block font-black text-sm tracking-widest uppercase italic">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-10">
+            <div className="space-y-3">
+              <div className="bg-secondary text-white px-4 py-1.5 rounded-full inline-block font-black text-[10px] tracking-widest uppercase italic">
                 DM POS Invoice
               </div>
-              <h1 className="text-4xl font-black text-secondary font-outfit uppercase tracking-tighter italic">
+              <h1 className="text-2xl font-black text-secondary font-outfit uppercase tracking-tighter italic">
                 Diamond Media <span className="text-primary">Solution.</span>
               </h1>
-              <div className="text-muted text-sm font-medium leading-relaxed">
+              <div className="text-muted text-[11px] font-medium leading-relaxed">
                 KALIJATI, KABUPATEN SUBANG, JAWA BARAT<br />
-                WhatsApp: 0851-1704-2204<br />
-                Email: support@dmpos.id
+                WhatsApp: 0851-1704-2204 | Email: support@dmpos.id
               </div>
             </div>
             
             <div className="text-right space-y-1">
-              <div className="text-primary font-black uppercase tracking-widest text-xs">Nomor Invoice</div>
-              <div className="text-2xl font-black text-secondary uppercase">#{invoiceNumber}</div>
-              <div className="text-muted text-sm font-bold pt-2">{dateStr}</div>
-              <div className="flex items-center justify-end gap-1 text-green-500 font-black text-[10px] uppercase tracking-widest pt-4">
-                 <CheckCircle2 size={12} /> PAID / LUNAS
+              <div className="text-primary font-black uppercase tracking-widest text-[10px]">Nomor Invoice</div>
+              <div className="text-xl font-black text-secondary uppercase tracking-tight">#{invoiceNumber}</div>
+              <div className="text-muted text-[11px] font-bold pt-1">{dateStr}</div>
+              <div className="flex items-center justify-end gap-1 text-green-500 font-black text-[9px] uppercase tracking-widest pt-2">
+                 <CheckCircle2 size={10} /> PAID / LUNAS
               </div>
             </div>
           </div>
 
-          <div className="h-px bg-gray-100 w-full mb-12"></div>
+          <div className="h-px bg-gray-100 w-full mb-8"></div>
 
           {/* Billing Info */}
-          <div className="flex flex-col md:flex-row justify-between gap-12 mb-16">
-            <div className="space-y-4">
-              <div className="text-primary font-black uppercase tracking-widest text-xs">Ditagihkan Kepada:</div>
-              <div className="space-y-1">
-                <div className="text-xl font-black text-secondary">{data.customer.n}</div>
-                <div className="text-muted text-sm font-medium">{data.customer.w}</div>
-                <div className="text-muted text-sm font-medium max-w-xs">{data.customer.a}</div>
+          <div className="flex flex-col md:flex-row justify-between gap-8 mb-12">
+            <div className="space-y-2">
+              <div className="text-primary font-black uppercase tracking-widest text-[9px]">Ditagihkan Kepada:</div>
+              <div className="space-y-0.5">
+                <div className="text-lg font-black text-secondary leading-none">{data.customer.n}</div>
+                <div className="text-muted text-[11px] font-bold">{data.customer.w}</div>
+                <div className="text-muted text-[11px] font-medium max-w-xs">{data.customer.a}</div>
               </div>
             </div>
             
-            <div className="space-y-4 md:text-right">
-              <div className="text-primary font-black uppercase tracking-widest text-xs">Metode Pembayaran:</div>
-              <div className="text-lg font-black text-secondary uppercase italic">DOKU Checkout</div>
-              <div className="text-muted text-xs font-bold uppercase tracking-widest">Otomatis Terverifikasi</div>
+            <div className="space-y-2 md:text-right">
+              <div className="text-primary font-black uppercase tracking-widest text-[9px]">Metode Pembayaran:</div>
+              <div className="text-sm font-black text-secondary uppercase italic">DOKU Checkout</div>
+              <div className="text-muted text-[10px] font-bold uppercase tracking-widest">Otomatis Terverifikasi</div>
             </div>
           </div>
 
           {/* Items Table */}
-          <div className="overflow-x-auto mb-16">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto mb-10">
+            <table className="w-full text-left text-[12px]">
               <thead>
                 <tr className="border-b-2 border-secondary/5">
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary">Deskripsi Barang</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center font-bold">Harga</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-center font-bold">Qty</th>
-                  <th className="py-4 font-black uppercase tracking-widest text-xs text-primary text-right font-bold">Subtotal</th>
+                  <th className="py-3 font-black uppercase tracking-widest text-[10px] text-primary">Deskripsi Barang</th>
+                  <th className="py-3 font-black uppercase tracking-widest text-[10px] text-primary text-center font-bold px-4">Harga</th>
+                  <th className="py-3 font-black uppercase tracking-widest text-[10px] text-primary text-center font-bold px-4">Qty</th>
+                  <th className="py-3 font-black uppercase tracking-widest text-[10px] text-primary text-right font-bold">Subtotal</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 border-b border-gray-100">
                 {data.items.map((item: any, idx: number) => (
                   <tr key={idx} className="group">
-                    <td className="py-6">
-                      <div className="font-black text-secondary">{item.n}</div>
-                      <div className="text-[10px] text-muted font-bold uppercase tracking-widest">Hardware Unit</div>
+                    <td className="py-4">
+                      <div className="font-bold text-secondary text-sm">{item.n}</div>
+                      <div className="text-[9px] text-muted font-bold uppercase tracking-widest">Hardware Unit</div>
                     </td>
-                    <td className="py-6 text-center font-bold text-secondary">Rp {item.p.toLocaleString('id-ID')}</td>
-                    <td className="py-6 text-center font-bold text-secondary">{item.q}</td>
-                    <td className="py-6 text-right font-black text-secondary">Rp {(item.p * item.q).toLocaleString('id-ID')}</td>
+                    <td className="py-4 text-center font-medium text-secondary px-4">Rp {item.p.toLocaleString('id-ID')}</td>
+                    <td className="py-4 text-center font-medium text-secondary px-4">{item.q}</td>
+                    <td className="py-4 text-right font-bold text-secondary">Rp {(item.p * item.q).toLocaleString('id-ID')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -185,31 +184,31 @@ function InvoiceContent({ params }: { params: { invoiceNumber: string } }) {
           </div>
 
           {/* Totals */}
-          <div className="flex justify-end pt-8">
-            <div className="w-full max-w-xs space-y-4">
-              <div className="flex justify-between items-center text-sm font-bold text-muted">
+          <div className="flex justify-end pt-4">
+            <div className="w-full max-w-[200px] space-y-2">
+              <div className="flex justify-between items-center text-[11px] font-bold text-muted">
                 <span>Subtotal:</span>
                 <span>Rp {data.subtotal.toLocaleString('id-ID')}</span>
               </div>
-              <div className="flex justify-between items-center text-sm font-bold text-muted">
+              <div className="flex justify-between items-center text-[11px] font-bold text-muted">
                 <span>Pajak (0%):</span>
                 <span>Rp 0</span>
               </div>
-              <div className="h-px bg-gray-100 w-full my-2"></div>
-              <div className="flex justify-between items-center">
-                <span className="text-primary font-black uppercase tracking-widest text-xs">Grand Total:</span>
-                <span className="text-3xl font-black text-secondary">Rp {data.total.toLocaleString('id-ID')}</span>
+              <div className="h-px bg-gray-100 w-full my-1"></div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-secondary font-black uppercase tracking-widest text-[10px]">Total:</span>
+                <span className="text-xl font-black text-secondary">Rp {data.total.toLocaleString('id-ID')}</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-24 pt-12 border-t border-gray-100 text-center">
-            <p className="text-muted font-bold italic mb-4">"Membantu transformasi digital bisnis Anda dengan data yang akurat."</p>
-            <p className="text-[10px] text-secondary font-black uppercase tracking-[0.3em]">Terima kasih telah berbisnis bersama DM POS</p>
-            <div className="mt-8 flex justify-center gap-4">
-              <div className="w-2 h-2 rounded-full bg-primary/20"></div>
-              <div className="w-2 h-2 rounded-full bg-primary/40"></div>
-              <div className="w-2 h-2 rounded-full bg-primary/20"></div>
+          <div className="mt-16 pt-8 border-t border-gray-100 text-center">
+            <p className="text-muted text-[10px] font-bold italic mb-2">"Membantu transformasi digital bisnis Anda dengan data yang akurat."</p>
+            <p className="text-[9px] text-secondary font-black uppercase tracking-[0.2em]">Terima kasih telah berbisnis bersama DM POS</p>
+            <div className="mt-6 flex justify-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/20"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/40"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/20"></div>
             </div>
           </div>
         </div>
