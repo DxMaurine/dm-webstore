@@ -23,6 +23,19 @@ export async function POST(req: Request) {
     const invoiceNumber = 'DMPOS-' + Date.now();
     const targetPath = '/checkout/v1/payment';
 
+    // Format data untuk dikirim balik di URL (Minified)
+    const simplifiedItems = items.map((item: any) => ({
+      n: item.name,
+      p: item.price,
+      q: item.quantity
+    }));
+    const encodedItems = Buffer.from(JSON.stringify(simplifiedItems)).toString('base64');
+    const encodedCustomer = Buffer.from(JSON.stringify({ 
+      n: customerDetails.name, 
+      w: customerDetails.whatsapp,
+      a: `${customerDetails.addressDetail}, ${customerDetails.district}, ${customerDetails.city}, ${customerDetails.province}`
+    })).toString('base64');
+
     // Format nomor HP ke standar internasional (628...)
     let phone = customerDetails.whatsapp.replace(/\D/g, '');
     if (phone.startsWith('0')) {
@@ -33,8 +46,8 @@ export async function POST(req: Request) {
       order: {
         amount: totalAmount,
         invoice_number: invoiceNumber,
-        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?invoice=${invoiceNumber}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel?invoice=${invoiceNumber}&name=${encodeURIComponent(customerDetails.name)}&whatsapp=${customerDetails.whatsapp}`,
+        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?invoice=${invoiceNumber}&items=${encodedItems}&customer=${encodedCustomer}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel?invoice=${invoiceNumber}&items=${encodedItems}&customer=${encodedCustomer}`,
         auto_redirect: true,
       },
       payment: {

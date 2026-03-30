@@ -13,6 +13,11 @@ function PaymentSuccessContent() {
   const router = useRouter();
   const [status, setStatus] = useState<'success' | 'pending' | 'failed' | 'checking'>('checking');
   const [invoice, setInvoice] = useState<string | null>(null);
+  const [hasNotified, setHasNotified] = useState(false);
+
+  // Extract encoded data from URL
+  const encodedItems = searchParams.get('items');
+  const encodedCustomer = searchParams.get('customer');
 
   useEffect(() => {
     const inv = searchParams.get('invoice');
@@ -33,9 +38,32 @@ function PaymentSuccessContent() {
         if (['SUCCESS', 'PAID', 'SETTLEMENT', 'DONE'].includes(finalStatus)) {
           setStatus('success');
           clearCart();
+          
+          // Trigger Success Notification only once
+          if (!hasNotified && encodedItems && encodedCustomer) {
+            try {
+              const items = JSON.parse(Buffer.from(encodedItems, 'base64').toString());
+              const customer = JSON.parse(Buffer.from(encodedCustomer, 'base64').toString());
+              
+              await fetch('/api/notify-success', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  invoiceNumber: inv,
+                  name: customer.n,
+                  whatsapp: customer.w,
+                  totalAmount: items.reduce((acc: number, item: any) => acc + (item.p * item.q), 0),
+                  items: items
+                })
+              });
+              setHasNotified(true);
+            } catch (notifyErr) {
+              console.error('Failed to send success notification', notifyErr);
+            }
+          }
         } else if (['FAILED', 'CANCEL'].includes(finalStatus)) {
           setStatus('failed');
-          router.push(`/payment/cancel?invoice=${inv}`);
+          router.push(`/payment/cancel?invoice=${inv}&items=${encodedItems}&customer=${encodedCustomer}`);
         } else {
           setStatus('pending');
         }
@@ -55,7 +83,13 @@ function PaymentSuccessContent() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [searchParams, status, clearCart, router]);
+  }, [searchParams, status, clearCart, router, hasNotified, encodedItems, encodedCustomer]);
+
+  const handleCancelManually = () => {
+    if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
+      router.push(`/payment/cancel?invoice=${invoice}&items=${encodedItems}&customer=${encodedCustomer}`);
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen selection:bg-primary/20">
@@ -91,7 +125,7 @@ function PaymentSuccessContent() {
                     Menunggu <span className="text-blue-500">Konfirmasi.</span>
                   </h1>
                   <p className="text-lg text-muted font-medium leading-relaxed">
-                    Terima kasih! Kami sedang menunggu konfirmasi pembayaran dari sistem. Jika Anda sudah membayar, pesanan akan segera diproses.
+                    Kami sedang menunggu konfirmasi pembayaran dari sistem. Jika Anda sudah membayar, pesanan akan segera diproses.
                   </p>
                 </div>
               </>
@@ -115,12 +149,30 @@ function PaymentSuccessContent() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/" className="btn-primary flex items-center justify-center gap-2 px-10">
-                Kembali ke Beranda <ArrowRight size={20} />
-              </Link>
-              <a href="https://wa.me/6285117042204" target="_blank" className="bg-white border-2 border-primary text-primary font-black py-4 px-10 rounded-2xl hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
-                Konfirmasi via WA
-              </a>
+              {status === 'success' ? (
+                <Link 
+                  href={`/invoice/${invoice}?items=${encodedItems}&customer=${encodedCustomer}`} 
+                  className="btn-primary flex items-center justify-center gap-2 px-10"
+                >
+                  Lihat & Download Invoice <ArrowRight size={20} />
+                </Link>
+              ) : status === 'pending' ? (
+                <>
+                   <a href="https://wa.me/6285117042204" target="_blank" className="btn-primary py-4 px-10 flex items-center justify-center gap-2">
+                    Konfirmasi via WA
+                  </a>
+                  <button 
+                    onClick={handleCancelManually}
+                    className="bg-white border-2 border-red-100 text-red-500 font-black py-4 px-10 rounded-2xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    Batalkan Pesanan
+                  </button>
+                </>
+              ) : (
+                <Link href="/" className="btn-primary flex items-center justify-center gap-2 px-10">
+                  Kembali ke Beranda <ArrowRight size={20} />
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -9,23 +9,39 @@ import { Footer } from '../../../components/Footer';
 function CancelContent() {
   const searchParams = useSearchParams();
   const invoice = searchParams.get('invoice');
-  const name = searchParams.get('name');
-  const whatsapp = searchParams.get('whatsapp');
+  const encodedItems = searchParams.get('items');
+  const encodedCustomer = searchParams.get('customer');
+  
+  const [customer, setCustomer] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    if (encodedCustomer) {
+      try {
+        setCustomer(JSON.parse(Buffer.from(encodedCustomer, 'base64').toString()));
+      } catch (e) {
+        console.error('Failed to parse customer data', e);
+      }
+    }
+  }, [encodedCustomer]);
 
   useEffect(() => {
     // Send notification to admin that the order was cancelled
-    if (invoice && name && whatsapp) {
+    if (invoice && customer) {
       fetch('/api/notify-cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invoiceNumber: invoice, name, whatsapp }),
+        body: JSON.stringify({ 
+          invoiceNumber: invoice, 
+          name: customer.n, 
+          whatsapp: customer.w 
+        }),
       }).catch(err => console.error('Failed to notify cancel', err));
     }
-  }, [invoice, name, whatsapp]);
+  }, [invoice, customer]);
 
   const contactWA = () => {
     const waNumber = '6285117042204'; // Official DM POS WA
-    const msg = `Halo Admin DM POS, saya ${name || 'ingin bertanya'} terkait pesanan ${invoice ? 'Inv: ' + invoice : ''} yang tadi batal bayar. Bisa bantu?`;
+    const msg = `Halo Admin DM POS, saya ${customer?.n || 'ingin bertanya'} terkait pesanan ${invoice ? 'Inv: ' + invoice : ''} yang tadi batal bayar. Bisa bantu?`;
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
