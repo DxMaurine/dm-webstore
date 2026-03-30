@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #00aeef;
+  --primary-dark: #0088cc;
+  --secondary: #1d1d1d;
+  --text-main: #333333;
+  --text-muted: #666666;
+  --bg-light: #f8fafc;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
+  --color-bg-light: var(--bg-light);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--secondary);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+@utility btn-primary {
+  @apply bg-gradient-to-r from-[#00aeef] to-[#0093ca] text-white px-8 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/40 active:scale-95 flex items-center gap-2 cursor-pointer;
+}
+
+@utility btn-outline {
+  @apply border-2 border-[#00aeef] text-[#00aeef] px-8 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 hover:bg-[#00aeef] hover:text-white hover:shadow-xl hover:shadow-blue-500/20 active:scale-95 flex items-center gap-2 cursor-pointer;
+}
+
+@utility btn-secondary {
+  @apply bg-[#1d1d1d] text-white px-8 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 hover:bg-white hover:text-[#1d1d1d] hover:shadow-2xl hover:shadow-white/10 active:scale-95 flex items-center gap-2 cursor-pointer;
+}
+
+@utility btn-white {
+  @apply bg-white text-[#1d1d1d] px-8 py-3 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl active:scale-95 flex items-center gap-2 cursor-pointer;
+}
+
+@utility glass {
+  @apply bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl shadow-black/5;
+}
+
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+
+.logo-card {
+  @apply grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer hover:scale-110;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@utility btn-cart {
+  @apply border-2 border-[#00aeef] text-[#00aeef] px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-[#00aeef] hover:text-white active:scale-95 flex items-center justify-center gap-2;
+}
+
+@utility btn-buy {
+  @apply bg-green-600 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-green-700 hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 shadow-green-600/20;
+}
+
+@utility quantity-control {
+  @apply flex items-center border border-gray-200 rounded-xl overflow-hidden;
+}
+
+@utility quantity-btn {
+  @apply w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors disabled:opacity-30;
+}
